@@ -1,3 +1,5 @@
-source 'http://rubygems.org'
+source "http://rubygems.org"
 
 gem 'serialport'
+gem 'activerecord'
+gem 'sqlite3'
