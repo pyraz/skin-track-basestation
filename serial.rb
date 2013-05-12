@@ -10,6 +10,7 @@ baud = 57600
 data_bits = 8
 stop_bits = 1
 parity = SerialPort::NONE
+record_count = 0
 
 ActiveRecord::Base.establish_connection({:adapter => 'sqlite3',
     :database => 'db_s1.sqlite'})
@@ -27,7 +28,8 @@ while true do
   record_match = string.match(/Record:\s*(-*\d,\s*\d)/)
   error_match = string.match(/Error:\s*(.*)$/)
   if record_match
-    $stdout.puts "Record found"
+    record_count += 1
+    $stdout.puts "Found record #{record_count}"
     record = record_match[1].split(",").map {|r| r.to_i}
     $stdout.puts "Direction: #{record[0]}, Beacon: #{record[1]}"
     if record[0] == 0
