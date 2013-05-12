@@ -12,7 +12,7 @@ stop_bits = 1
 parity = SerialPort::NONE
 
 ActiveRecord::Base.establish_connection({:adapter => 'sqlite3',
-    :database => 'db.sqlite'})
+    :database => 'db_s1.sqlite'})
 
 class SkinTrackRecord < ActiveRecord::Base
 end
@@ -24,10 +24,11 @@ sp = SerialPort.new(port_str, baud, data_bits, stop_bits, parity)
 while true do
   string = sp.gets
   string.encode!('UTF-8', 'UTF-8', :invalid => :replace)
-  match = string.match(/Record:\s*(-*\d,\s*\d)/)
-  if match
+  record_match = string.match(/Record:\s*(-*\d,\s*\d)/)
+  error_match = string.match(/Error:\s*(.*)$/)
+  if record_match
     $stdout.puts "Record found"
-    record = match[1].split(",").map {|r| r.to_i}
+    record = record_match[1].split(",").map {|r| r.to_i}
     $stdout.puts "Direction: #{record[0]}, Beacon: #{record[1]}"
     if record[0] == 0
       direction = "enter"
@@ -40,6 +41,9 @@ while true do
     beacon = record[1] > 0 ? true : false
 
     SkinTrackRecord.create(:direction => direction, :beacon => beacon)
+  elsif error_match
+    $stdout.puts "Error found"
+    $stdout.puts "#{error_match[1]}"
   else
     $stdout.puts string
   end
